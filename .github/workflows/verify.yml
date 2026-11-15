@@ -1,0 +1,52 @@
+name: Verify Snounu
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Download original design assets once
+        run: npm run assets:download
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+      - name: Preserve complete source including original assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: snounu-source
+          include-hidden-files: true
+          path: |
+            src
+            public
+            scripts
+            tests
+            docs
+            package.json
+            package-lock.json
+            index.html
+            tsconfig.json
+            vite.config.ts
+            playwright.config.ts
+            vercel.json
+            firestore.rules
+            firestore.indexes.json
+            storage.rules
+            firebase.json
+            .firebaserc
+            .env.example
+            .gitignore
+            README.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snounu-dist
+          path: dist

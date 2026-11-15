@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { validateAdminRecord, canDeleteRecord } from '../../src/admin-validation.ts';
+const product={id:'p',name:'قهوة',slug:'coffee',description:'وصف',categoryId:'c',image:'/assets/coffee.webp',price:12,previousPrice:null,badge:'',ingredientIds:[],published:true,available:true,sort:0};
+const catalog={products:[product],categories:[{id:'c'}],ingredients:[{id:'i'}]};
+test('accepts valid products and local asset images',()=>assert.equal(validateAdminRecord('products',product,catalog),''));
+test('rejects negative prices and invalid discounts',()=>{assert.match(validateAdminRecord('products',{...product,price:-1},catalog),/السعر/);assert.match(validateAdminRecord('products',{...product,previousPrice:10},catalog),/السابق/);});
+test('rejects duplicate slugs and dangling references',()=>{assert.match(validateAdminRecord('products',{...product,id:'other'},catalog),/الرابط/);assert.match(validateAdminRecord('products',{...product,categoryId:'missing'},catalog),/القسم/);assert.match(validateAdminRecord('products',{...product,ingredientIds:['missing']},catalog),/المكونات/);});
+test('blocks deleting categories and ingredients used by products',()=>{assert.equal(canDeleteRecord('categories','c',catalog.products),false);assert.equal(canDeleteRecord('ingredients','i',[{...product,ingredientIds:['i']}]),false);assert.equal(canDeleteRecord('ingredients','free',catalog.products),true);});
+test('rejects blank names, nonfinite sort and unsafe images',()=>{assert.match(validateAdminRecord('categories',{name:' ',sort:0},catalog),/الاسم/);assert.match(validateAdminRecord('categories',{name:'قسم',sort:NaN},catalog),/الترتيب/);assert.match(validateAdminRecord('products',{...product,image:'javascript:alert(1)'},catalog),/الصورة/);});

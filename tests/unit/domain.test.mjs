@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {filterProducts,validateProduct,validateReview,reviewSummary,safeExternalUrl,normalizeSearch} from '../../src/domain.ts';
+const products=[{id:'a',name:'سَلَطة',description:'خضار',categoryId:'salad',ingredientIds:['lettuce'],published:true},{id:'b',name:'برجر',description:'لحم',categoryId:'main',ingredientIds:[],published:true},{id:'c',name:'سلطة مخفية',description:'',categoryId:'salad',ingredientIds:[],published:false}];
+test('Arabic normalization removes marks and tatweel',()=>assert.equal(normalizeSearch('سَـلَطة'),'سلطة'));
+test('search category and favorites intersect and exclude hidden products',()=>assert.deepEqual(filterProducts(products,{query:'سلطة',category:'salad',favorites:['a','c'],favoritesOnly:true}).map(p=>p.id),['a']));
+test('review requires whole stars 1-5 and comment length <=1000',()=>{for(const rating of [0,1.5,6,NaN])assert.throws(()=>validateReview({rating,comment:''}));assert.throws(()=>validateReview({rating:5,comment:'x'.repeat(1001)}));assert.equal(validateReview({rating:4,comment:' جيد '}).comment,'جيد')});
+test('only approved reviews count in summary',()=>assert.deepEqual(reviewSummary([{status:'pending',rating:1},{status:'approved',rating:4},{status:'approved',rating:5}]),{average:4.5,count:2}));
+test('reject executable and credential URLs',()=>{assert.equal(safeExternalUrl('javascript:alert(1)'),null);assert.equal(safeExternalUrl('https://user:pass@example.com'),null);assert.equal(safeExternalUrl('https://sonbol.ps/'),'https://sonbol.ps/')});
+test('product rejects negative and invalid old prices',()=>{assert.throws(()=>validateProduct({price:-1,previousPrice:null}));assert.throws(()=>validateProduct({price:10,previousPrice:9}))});

@@ -1,0 +1,92 @@
+rules_version = '2';
+// Merge these Snounu matches into existing Taskora rules before deployment.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function admin() {
+      return signedIn() && exists(/databases/$(database)/documents/snounu_admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/snounu_admins/$(request.auth.uid)).data.enabled == true;
+    }
+    function text(value, max) { return value is string && value.size() <= max; }
+    match /snounu_admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      // Provision/remove admins through Firebase Console or a trusted Admin SDK only.
+      allow write, list: if false;
+    }
+    match /snounu_products/{id} {
+      allow read: if admin() || resource.data.published == true;
+      allow write: if admin();
+    }
+    match /snounu_categories/{id} {
+      allow read: if admin() || resource.data.published == true;
+      allow write: if admin();
+    }
+    match /snounu_banners/{id} {
+      allow read: if admin() || resource.data.published == true;
+      allow write: if admin();
+    }
+    match /snounu_ingredients/{id} {
+      allow read: if true;
+      allow write: if admin();
+    }
+    match /snounu_settings/main {
+      allow read: if true;
+      allow write: if admin();
+    }
+    match /snounu_reviews/{id} {
+      function validReview() {
+        let d = request.resource.data;
+        return signedIn()
+          && d.keys().hasAll(['productId','uid','rating','comment','status','createdAt','updatedAt'])
+          && d.keys().hasOnly(['productId','uid','rating','comment','status','createdAt','updatedAt'])
+          && text(d.productId,128) && d.productId.size() > 0
+          && d.uid == request.auth.uid && id == d.productId + '_' + request.auth.uid
+          && d.rating is int && d.rating >= 1 && d.rating <= 5
+          && text(d.comment,1000) && d.status == 'pending' && d.updatedAt == request.time
+          && get(/databases/$(database)/documents/snounu_products/$(d.productId)).data.published == true;
+      }
+      allow read: if admin() || resource.data.status == 'approved';
+      allow get: if signedIn() && id.matches('.*_' + request.auth.uid);
+      allow create: if validReview() && request.resource.data.createdAt == request.time;
+      allow update: if admin() || (validReview()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.productId == resource.data.productId
+        && request.time >= resource.data.updatedAt + duration.value(10,'m'));
+      allow delete: if admin();
+    }
+    match /snounu_messages/{id} {
+      function validMessage() {
+        let d = request.resource.data;
+        let limit = getAfter(/databases/$(database)/documents/snounu_submission_limits/$(request.auth.uid)).data;
+        return d.keys().hasAll(['uid','name','phone','kind','message','status','createdAt'])
+          && d.keys().hasOnly(['uid','name','phone','kind','message','status','createdAt'])
+          && d.uid == request.auth.uid && text(d.name,100) && d.name.size() > 0
+          && text(d.phone,40) && d.phone.size() > 0 && text(d.kind,50) && d.kind.size() > 0
+          && text(d.message,2000) && d.message.size() > 0
+          && d.status == 'new' && d.createdAt == request.time
+          && limit.lastMessageAt == request.time && limit.messageId == id;
+      }
+      allow read: if admin();
+      allow create: if signedIn() && validMessage();
+      allow update, delete: if admin();
+    }
+    match /snounu_submission_limits/{uid} {
+      function validLimit() {
+        let d = request.resource.data;
+        let target = /databases/$(database)/documents/snounu_messages/$(d.messageId);
+        return signedIn() && request.auth.uid == uid
+          && d.keys().hasAll(['lastMessageAt','messageId'])
+          && d.keys().hasOnly(['lastMessageAt','messageId'])
+          && text(d.messageId,128) && d.lastMessageAt == request.time
+          && !exists(target) && getAfter(target).data.uid == uid
+          && getAfter(target).data.createdAt == request.time;
+      }
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow create: if validLimit();
+      allow update: if validLimit() && request.time >= resource.data.lastMessageAt + duration.value(5,'m');
+      allow delete, list: if false;
+    }
+    // No catch-all grants: unrelated Taskora paths need their own existing rules.
+  }
+}
