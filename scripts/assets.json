@@ -56,10 +56,6 @@
     "url": "https://www.figma.com/api/mcp/asset/fb5c0516-c8c9-4802-86b5-711a678262c3/f7f0c.svg"
   },
   {
-    "path": "public/assets/<asset file name>",
-    "url": "https://www.figma.com/api/mcp/asset/b3669fd2-9b94-4d73-a616-6fb3c45ba645/<asset file name>"
-  },
-  {
     "path": "public/assets/349bf.png",
     "url": "https://www.figma.com/api/mcp/asset/ef9da1cf-262b-4f94-9758-1812a44af0c4/349bf.png"
   },
