@@ -1,0 +1,19 @@
+name: Export original design assets
+on: [push]
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/download-assets.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snounu-original-assets
+          path: public/assets

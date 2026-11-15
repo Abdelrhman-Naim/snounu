@@ -1,0 +1,3 @@
+import fs from 'node:fs';import crypto from 'node:crypto';
+const names=["public/assets/bb76e.png","public/assets/b0642.png","public/assets/ad064.png","public/assets/cbaf6.png","public/assets/c6c27.png","public/assets/37b39.png","public/assets/349bf.png","public/assets/be3e5.png","public/assets/ea968.png","public/assets/80518.png","public/assets/04d3f.png","public/assets/7b88c.svg","public/assets/a2aae.svg"];
+for(const name of names){const bytes=fs.readFileSync(name);const b=bytes.toString('base64');for(let i=0;i<b.length;i+=4096)console.log('SNOUNU_ASSET:'+name.split('/').pop()+':'+(i/4096)+':'+b.slice(i,i+4096));console.log('SNOUNU_HASH:'+name.split('/').pop()+':'+bytes.length+':'+crypto.createHash('sha256').update(bytes).digest('hex'));}
