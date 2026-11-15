@@ -13,10 +13,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
       - name: Download original design assets once
         run: npm run assets:download
-      - run: npm ci
+      - name: Resolve dependencies on the target Linux platform
+        run: npm install
       - run: npm test
       - run: npm run typecheck
       - run: npm run build

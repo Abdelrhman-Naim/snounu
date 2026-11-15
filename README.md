@@ -4,7 +4,7 @@
 
 ## التشغيل
 
-نفّذ npm ci ثم npm run assets:download ثم npm run dev.
+نفّذ npm install ثم npm run assets:download ثم npm run dev.
 افتح /menu?preview=1 لمعاينة تجريبية دون كتابة، و/admin للإدارة الفعلية.
 الوضع العادي يقرأ Firebase الحقيقي، ولا يستبدل فشل الاتصال ببيانات تجريبية صامتة.
 
@@ -50,3 +50,4 @@ npm run test:browser
 هوية مجهولة جديدة قد تتجاوز الحد؛ لا ندعي إثبات شراء أو تحديد هوية أو IP دون خادم.
 
 الخطة الحالية: docs/superpowers/plans/2026-11-15-react-firebase.md. الوثائق الأقدم محفوظة كمرجع تاريخي، ويعلو عليها هذا القرار التقني.
+
