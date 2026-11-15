@@ -1,0 +1,36 @@
+{
+  "name": "snounu",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build && node scripts/generate-seo.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/unit/*.test.mjs",
+    "test:rules": "node --experimental-strip-types --test tests/rules/*.test.mjs",
+    "assets:download": "node scripts/download-assets.mjs",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "firebase": "13.0.0",
+    "lucide-react": "0.577.0"
+  },
+  "devDependencies": {
+    "vite": "8.2.2",
+    "typescript": "5.9.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@types/node": "24.19.2",
+    "tailwindcss": "4.3.3",
+    "@tailwindcss/vite": "4.3.3",
+    "@firebase/rules-unit-testing": "6.0.0",
+    "@playwright/test": "1.63.0"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

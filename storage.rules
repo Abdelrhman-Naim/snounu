@@ -1,0 +1,17 @@
+rules_version = '2';
+// Merge with existing Taskora Storage rules before deployment.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function admin() {
+      return request.auth != null
+        && firestore.exists(/databases/(default)/documents/snounu_admins/$(request.auth.uid))
+        && firestore.get(/databases/(default)/documents/snounu_admins/$(request.auth.uid)).data.enabled == true;
+    }
+    match /snounu/images/{file} {
+      allow read: if true;
+      allow create, update: if admin() && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+      allow delete: if admin();
+    }
+  }
+}
