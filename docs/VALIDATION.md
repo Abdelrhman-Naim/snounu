@@ -7,10 +7,10 @@ Completed locally:
 - Unit tests: 16 passed (catalog filtering, admin validation, rating validation/aggregation, safe URLs, Arabic route decoding, JSON-LD and geo omissions).
 - Production bundle: Vite build and SEO generator passed; no indexing enabled without final domain/catalog.
 - Firestore rules: 6 tests passed against real local Firestore emulator, including unauthorized access, publication rules, review ownership/moderation, message cooldown and private messages.
-- Browser tests: 12 passed, including review acknowledgement, mounted header search and Back, favorites/theme persistence, outbound URLs, six responsive widths, real admin login screen and malformed routes. Firebase network is mocked only for the acknowledgement UI test; Firestore security is independently emulator-tested.
+- Browser tests: 13 passed, including review acknowledgement, mounted header search and Back, favorites/theme persistence, outbound URLs, six responsive widths, real admin login screen and malformed routes. Firebase network is mocked only for the acknowledgement UI test; Firestore security is independently emulator-tested.
 - Independent code review found mounted-menu search, Arabic slug SEO and review acknowledgement bugs; fixed with regression checks. Malformed encoded paths now return 404 in the app.
 
-Infrastructure findings resolved: cached npm dependencies were installed through an offline local cache registry; package-lock URLs normalized to official registry. Firestore emulator needed en_US JVM locale to avoid an Arabic-digit regex initialization error.
+Infrastructure findings resolved: cached npm dependencies were installed through an offline local cache registry; the cache-generated platform lock proved incomplete on Linux, so CI/Vercel resolve dependencies on their target platform and the downloadable source includes the generated lock. Node 24 is required by Firebase 13. Firestore emulator needed en_US JVM locale to avoid an Arabic-digit regex initialization error.
 
 Not verified in this environment:
 - Storage emulator rules (no Storage emulator installed).
@@ -24,4 +24,5 @@ No live Firebase rules deployment or Vercel publication was performed. The Fireb
 Known constraints: anonymous UID controls reduce spam but cannot identify a person/IP without a backend. SEO snapshots/sitemap require rebuilding after content changes. Vite reports a large initial Firebase bundle (~252 KB gzip); this is a performance improvement opportunity, not a failed build.
 
 Automatic approval review rejected an earlier proposal for an Actions workflow with repository write permissions, and a later proposal to transfer public asset bytes through Actions logs. Neither was executed. The accepted asset job is read-only, outputs downloadable artifacts and cannot commit/push.
+
 
