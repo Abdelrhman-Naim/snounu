@@ -1,7 +1,7 @@
 import {before, after, beforeEach, test} from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {initializeTestEnvironment, assertFails, assertSucceeds} from '@firebase/rules-unit-testing';
-import {doc, getDoc, setDoc, updateDoc, serverTimestamp, writeBatch, Timestamp} from 'firebase/firestore';
+import {doc, getDoc, getDocs, collection, setDoc, updateDoc, serverTimestamp, writeBatch, Timestamp} from 'firebase/firestore';
 
 let env;
 before(async () => {
@@ -19,6 +19,20 @@ beforeEach(async () => {
   });
 });
 const db = uid => uid ? env.authenticatedContext(uid).firestore() : env.unauthenticatedContext().firestore();
+const imageId='4a26a077-a488-4d33-a70e-ded4c378ab10';
+const image=extra=>({dataUrl:'data:image/webp;base64,UklGRgAAAAA=',width:100,height:100,createdAt:serverTimestamp(),...extra});
+test('only admins create bounded immutable images; visitors get by ID without listing',async()=>{
+ const target=uid=>doc(db(uid),'snounu_images',imageId);
+ await assertFails(setDoc(target(),image()));
+ await assertFails(setDoc(target('alice'),image()));
+ await assertFails(setDoc(target('admin'),image({dataUrl:'data:image/svg+xml,<svg/>'})));
+ await assertFails(setDoc(target('admin'),image({dataUrl:'data:image/webp;base64,UklGR'+ 'A'.repeat(184320)})));
+ await assertFails(setDoc(target('admin'),image({email:'private@example.com'})));
+ await assertSucceeds(setDoc(target('admin'),image()));
+ await assertSucceeds(getDoc(target()));
+ await assertFails(getDocs(collection(db(),'snounu_images')));
+ await assertFails(updateDoc(target('admin'),{width:120}));
+});
 const review = (extra={}) => ({productId:'p1',uid:'alice',rating:5,comment:'رائع',status:'pending',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),...extra});
 test('public reads only published products',async () => {
   await assertSucceeds(getDoc(doc(db(),'snounu_products/p1')));

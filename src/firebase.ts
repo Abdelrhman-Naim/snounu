@@ -1,7 +1,6 @@
 import {initializeApp} from 'firebase/app';
 import {getAuth, connectAuthEmulator, signInAnonymously, signInWithEmailAndPassword, signOut, type User} from 'firebase/auth';
 import {getFirestore, connectFirestoreEmulator, collection, doc, getDoc, getDocs, query, where, limit, setDoc, deleteDoc, writeBatch, runTransaction, serverTimestamp, type QueryConstraint} from 'firebase/firestore';
-import {getStorage, connectStorageEmulator, ref, uploadBytes, getDownloadURL} from 'firebase/storage';
 import type {AdminData, AdminResource, Catalog, Settings} from './types';
 import {demoCatalog} from './demo';
 
@@ -17,12 +16,10 @@ const app = initializeApp({
 });
 export const auth=getAuth(app);
 export const db=getFirestore(app);
-export const storage=getStorage(app);
 if (env.VITE_FIREBASE_USE_EMULATORS === 'true') {
   const host=env.VITE_FIREBASE_EMULATOR_HOST || '127.0.0.1';
   connectAuthEmulator(auth,`http://${host}:9099`,{disableWarnings:true});
   connectFirestoreEmulator(db,host,8080);
-  connectStorageEmulator(storage,host,9199);
 }
 const ready = env.VITE_FIREBASE_APP_CHECK_SITE_KEY && env.VITE_FIREBASE_USE_EMULATORS !== 'true'
   ? import('firebase/app-check').then(({initializeAppCheck,ReCaptchaV3Provider}) => {
@@ -103,28 +100,22 @@ export async function deleteResource(resource:AdminResource,id:string):Promise<v
 export async function saveSettings(value:Settings):Promise<void> {
   await requireAdmin(); await setDoc(doc(db,'snounu_settings/main'),value);
 }
+export async function readManagedImage(id:string):Promise<Record<string,unknown>> {await ready;validId(id);const result=await getDoc(doc(db,'snounu_images',id));if(!result.exists())throw new Error('الصورة غير موجودة');return result.data();}
 export async function uploadImage(file:File):Promise<string> {
-  await requireAdmin();
-  if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size >= 5*1024*1024) throw new Error('اختر صورة JPG أو PNG أو WebP أصغر من 5 ميغابايت.');
-  let bitmap:ImageBitmap;
-  try { bitmap=await createImageBitmap(file); }
-  catch { throw new Error('تعذّر قراءة الصورة. اختر ملف صورة صالحاً.'); }
-  let encoded:Blob;
-  try {
-    if (!bitmap.width || !bitmap.height || bitmap.width>8192 || bitmap.height>8192 || bitmap.width*bitmap.height>32_000_000) throw new Error('أبعاد الصورة كبيرة جداً. الحد 8192 بكسل و32 مليون بكسل إجمالاً.');
-    const scale=Math.min(1,2400/Math.max(bitmap.width,bitmap.height));
-    const canvas=document.createElement('canvas');
-    canvas.width=Math.max(1,Math.round(bitmap.width*scale));
-    canvas.height=Math.max(1,Math.round(bitmap.height*scale));
-    const context=canvas.getContext('2d');
-    if (!context) throw new Error('المتصفح لا يدعم معالجة الصور.');
-    context.drawImage(bitmap,0,0,canvas.width,canvas.height);
-    encoded=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(value=>value?resolve(value):reject(new Error('تعذّر تجهيز الصورة.')),'image/webp',0.86));
-    if (encoded.type!=='image/webp' || encoded.size>=5*1024*1024) throw new Error('تعذّر تجهيز صورة WebP ضمن حد الحجم.');
-  } finally {bitmap.close();}
-  const target=ref(storage,`snounu/images/${crypto.randomUUID()}.webp`);
-  await uploadBytes(target,encoded,{contentType:'image/webp'});
-  return getDownloadURL(target);
+ await requireAdmin();
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>=5*1024*1024)throw new Error('اختر صورة JPG أو PNG أو WebP أقل من 5 ميغابايت.');
+ const bitmap=await createImageBitmap(file);
+ try {
+  if(!bitmap.width||!bitmap.height||bitmap.width>8192||bitmap.height>8192||bitmap.width*bitmap.height>32_000_000)throw new Error('أبعاد الصورة كبيرة جداً.');
+  const canvas=document.createElement('canvas');const context=canvas.getContext('2d');if(!context)throw new Error('المتصفح لا يدعم معالجة الصور.');
+  let edge=1280,dataUrl='';
+  for(let attempt=0;attempt<5;attempt++){
+   const scale=Math.min(1,edge/Math.max(bitmap.width,bitmap.height));canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+   dataUrl=canvas.toDataURL('image/webp',attempt?0.68:0.8);if(dataUrl.startsWith('data:image/webp;base64,UklGR')&&dataUrl.length<=184320)break;edge=Math.round(edge*0.75);
+  }
+  if(!dataUrl.startsWith('data:image/webp;base64,UklGR')||dataUrl.length>184320)throw new Error('تعذر ضغط الصورة للحجم المسموح. اختر صورة أصغر.');
+  const id=crypto.randomUUID();await setDoc(doc(db,'snounu_images',id),{dataUrl,width:canvas.width,height:canvas.height,createdAt:serverTimestamp()});return 'firestore-image:'+id;
+ }finally{bitmap.close();}
 }
 let anonymousLogin:Promise<User>|undefined;
 async function submissionUser():Promise<User> {

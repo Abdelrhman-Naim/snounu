@@ -1,7 +1,8 @@
+import {MenuImage as Image} from './MenuImage';
 import {lazy,Suspense,useEffect,useState,type FormEvent,type ReactNode} from 'react';
 import {Heart,Search,Sun,Moon,Phone,UtensilsCrossed,ChevronLeft,ArrowUpRight,MapPin,Clock,MessageCircle,Instagram,Facebook,ArrowRight,Check,LoaderCircle} from 'lucide-react';
 import type {Catalog,Product,Settings} from './types';
-import {getCatalog,submitReview,submitContact,enableAnalytics} from './firebase';
+import {getCatalog,submitReview,submitContact,enableAnalytics} from './public-data';
 import {demoCatalog} from './demo';
 import {filterProducts,reviewSummary,money,errorMessage,safeExternalUrl,validateReview} from './domain';
 import {updatePageSeo} from './seo';
@@ -11,7 +12,6 @@ const Admin=lazy(()=>import('./Admin'));
 function navigate(href:string){if(new URLSearchParams(location.search).get('preview')==='1'&&!new URL(href,location.origin).searchParams.has('preview'))href+=(href.includes('?')?'&':'?')+'preview=1';history.pushState({},'',href);window.dispatchEvent(new PopStateEvent('popstate'));window.scrollTo(0,0)}
 function Link({href,children,...props}:React.AnchorHTMLAttributes<HTMLAnchorElement>&{href:string}){const preview=new URLSearchParams(location.search).get('preview')==='1';const target=preview&&href.startsWith('/')?href+(href.includes('?')?'&':'?')+'preview=1':href;return <a {...props} href={target} onClick={e=>{props.onClick?.(e);if(!e.defaultPrevented&&!e.ctrlKey&&!e.metaKey&&!e.shiftKey&&e.button===0&&target.startsWith('/')){e.preventDefault();navigate(target)}}}>{children}</a>}
 function readStored<T,>(key:string,fallback:T):T{try{const value=localStorage.getItem(key);return value?JSON.parse(value):fallback}catch{return fallback}}
-function Image({src,alt,...props}:React.ImgHTMLAttributes<HTMLImageElement>){const [failed,setFailed]=useState(false);useEffect(()=>setFailed(false),[src]);return src&&!failed?<img {...props} src={src} alt={alt||''} onError={()=>setFailed(true)}/>:<div className={'image-placeholder '+(props.className||'')} role="img" aria-label={alt||'صورة غير متوفرة'}><UtensilsCrossed size={34}/><span>الصورة غير متوفرة</span></div>}
 function External({url,children,...props}:React.AnchorHTMLAttributes<HTMLAnchorElement>&{url:string}){const href=safeExternalUrl(url);return href?<a {...props} href={href} target="_blank" rel="noopener noreferrer">{children}</a>:null}
 function DeliveryLinks({settings,disabled=false}:{settings:Settings;disabled?:boolean}){return <div className="delivery-links">{[{name:'مكوك',url:settings.makukUrl,icon:'/assets/a2aae.svg'},{name:'سنبل',url:settings.sonbolUrl,icon:'/assets/7b88c.svg'}].map(item=>disabled?<span key={item.name} className="button disabled">غير متوفر حاليًا</span>:<External key={item.name} url={item.url} className="button"><img src={item.icon} alt="" width="23" height="24"/>اطلب من {item.name}</External>)}</div>}
 function Status({children,error=false}:{children:ReactNode;error?:boolean}){return <div className={'status '+(error?'error':'')} role={error?'alert':'status'}>{children}</div>}

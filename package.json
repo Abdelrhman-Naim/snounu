@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/unit/*.test.mjs",
     "test:rules": "node --experimental-strip-types --test tests/rules/*.test.mjs",
-    "assets:download": "node scripts/download-assets.mjs",
+    "assets:download": "node scripts/download-assets.mjs && node scripts/optimize-assets.mjs",
     "test:browser": "playwright test"
   },
   "dependencies": {
@@ -28,7 +28,8 @@
     "tailwindcss": "4.3.3",
     "@tailwindcss/vite": "4.3.3",
     "@firebase/rules-unit-testing": "6.0.0",
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "1.63.0",
+    "sharp": "0.35.5"
   },
   "engines": {
     "node": "24.x"

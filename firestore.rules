@@ -8,6 +8,25 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/snounu_admins/$(request.auth.uid)).data.enabled == true;
     }
     function text(value, max) { return value is string && value.size() <= max; }
+    // snounu_images: immutable public menu artwork, created only by admins.
+    // dataUrl: WebP/base64 <=180 KiB characters; width/height: 1..1280; createdAt: server timestamp.
+    match /snounu_images/{id} {
+      function validImage() {
+        let d=request.resource.data;
+        return d.keys().hasAll(['dataUrl','width','height','createdAt'])
+          && d.keys().hasOnly(['dataUrl','width','height','createdAt'])
+          && id.matches('^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$')
+          && d.dataUrl is string && d.dataUrl.size() <= 184320
+          && d.dataUrl.matches('^data:image/webp;base64,UklGR[A-Za-z0-9+/=]+$')
+          && d.width is int && d.width > 0 && d.width <= 1280
+          && d.height is int && d.height > 0 && d.height <= 1280
+          && d.createdAt == request.time;
+      }
+      allow get: if true;
+      allow list, update: if false;
+      allow create: if admin() && validImage();
+      allow delete: if admin();
+    }
     match /snounu_admins/{uid} {
       allow get: if signedIn() && request.auth.uid == uid;
       // Provision/remove admins through Firebase Console or a trusted Admin SDK only.

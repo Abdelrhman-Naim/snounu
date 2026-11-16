@@ -1,9 +1,10 @@
+import {isImageReference} from './image-reference.ts';
 import type { AdminResource, Product } from './types';
 type ValidationCatalog = { products: Pick<Product,'id'|'slug'|'categoryId'|'ingredientIds'>[]; categories: {id:string}[]; ingredients: {id:string}[] };
 export function validateAdminRecord(resource:AdminResource, record:Record<string,unknown>, catalog:ValidationCatalog):string {
  if (['categories','ingredients','products'].includes(resource) && !String(record.name??'').trim()) return 'الاسم مطلوب.';
  if (['categories','products','banners'].includes(resource) && (typeof record.sort!=='number'||!Number.isFinite(record.sort)||record.sort<0)) return 'الترتيب يجب أن يكون رقماً غير سالب.';
- if (['products','banners'].includes(resource) && !/^(https:\/\/[^\s]+|\/assets\/[^\s]+)$/.test(String(record.image??''))) return 'الصورة مطلوبة: استخدم رابط HTTPS أو ملفاً من الصور المحلية.';
+ if (['products','banners'].includes(resource) && !isImageReference(String(record.image??''))) return 'الصورة مطلوبة: استخدم رابط HTTPS أو ملفاً من الصور المحلية.';
  if(resource==='products') {
   if(typeof record.price!=='number'||!Number.isFinite(record.price)||record.price<0) return 'السعر يجب أن يكون رقماً غير سالب.';
   if(record.previousPrice!==null&&(typeof record.previousPrice!=='number'||!Number.isFinite(record.previousPrice)||record.previousPrice<=record.price)) return 'السعر السابق يجب أن يكون أكبر من السعر الحالي.';
