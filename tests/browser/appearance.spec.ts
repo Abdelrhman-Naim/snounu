@@ -5,6 +5,8 @@ test('admin category and message selects preserve validation, disabling and call
  await page.route('**/src/firebase.ts*',route=>route.fulfill({contentType:'text/javascript',body:"import {demoCatalog} from '/src/demo.ts';const data={...demoCatalog,messages:[{id:'m1',name:'اختبار الواجهة',phone:'0000000000',kind:'اقتراح',message:'رسالة اختبار واجهة',status:'new'}]};export const auth={currentUser:{uid:'admin'}};export async function isAdmin(){return true}export async function getAdminData(){return structuredClone(data)}export async function saveResource(resource,id,values){Object.assign(data[resource].find(x=>x.id===id),values)}export async function login(){}export async function logout(){}export async function deleteResource(){}export async function saveSettings(){}export async function uploadImage(){}export async function seedCatalog(){}"}));
  page.on('dialog',dialog=>dialog.accept());
  await page.goto('/admin');await expect(page.locator('.admin-shell')).toBeVisible();
+ await expect(page.locator('.admin-brand-logo')).toHaveAttribute('src',/bb76e/);
+ await expect(page.locator('.admin-welcome-logo')).toHaveAttribute('src',/bb76e/);
  await page.locator('aside nav button').filter({hasText:'المنتجات'}).click();
  await page.getByRole('button',{name:'+ إضافة منتج',exact:true}).click();
  const category=page.getByRole('combobox',{name:'القسم',exact:true});
