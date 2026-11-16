@@ -1,5 +1,5 @@
 rules_version = '2';
-// Merge these Snounu matches into existing Taskora rules before deployment.
+// Security rules for the dedicated snounu-a1440 project.
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
@@ -87,6 +87,6 @@ service cloud.firestore {
       allow update: if validLimit() && request.time >= resource.data.lastMessageAt + duration.value(5,'m');
       allow delete, list: if false;
     }
-    // No catch-all grants: unrelated Taskora paths need their own existing rules.
+    // All paths not explicitly allowed above remain private.
   }
 }

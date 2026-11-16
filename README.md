@@ -12,7 +12,7 @@
 
 ## إعداد Firebase مرة واحدة
 
-1. فعّل Firestore وStorage وAuthentication (Email/Password وAnonymous) في taskora-bf729.
+1. فعّل Firestore وStorage وAuthentication (Email/Password وAnonymous) في snounu-a1440.
 2. أنشئ مستخدم المدير في Authentication، ووثيقة snounu_admins/USER_UID بحقل enabled: true من Firestore Console.
 3. ادمج firestore.rules وstorage.rules مع قواعد مشروعك القائم ثم انشرها؛ لا تستبدل قواعد Taskora دون مراجعة.
 4. أضف نطاق Vercel النهائي إلى Authorized domains. App Check اختياري موصى به بعد ضبط المفتاح.

@@ -1,5 +1,5 @@
 rules_version = '2';
-// Merge with existing Taskora Storage rules before deployment.
+// Storage rules for the dedicated snounu-a1440 project.
 service firebase.storage {
   match /b/{bucket}/o {
     function admin() {

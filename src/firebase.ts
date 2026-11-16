@@ -7,13 +7,13 @@ import {demoCatalog} from './demo';
 
 const env = import.meta.env;
 const app = initializeApp({
-  apiKey:env.VITE_FIREBASE_API_KEY || 'AIzaSyAOMjes8PtCUNfnFssDZWRy0ei7aH_juts',
-  authDomain:env.VITE_FIREBASE_AUTH_DOMAIN || 'taskora-bf729.firebaseapp.com',
-  projectId:env.VITE_FIREBASE_PROJECT_ID || 'taskora-bf729',
-  storageBucket:env.VITE_FIREBASE_STORAGE_BUCKET || 'taskora-bf729.firebasestorage.app',
-  messagingSenderId:env.VITE_FIREBASE_MESSAGING_SENDER_ID || '997225509918',
-  appId:env.VITE_FIREBASE_APP_ID || '1:997225509918:web:3d8317f987cb685544ea0f',
-  measurementId:env.VITE_FIREBASE_MEASUREMENT_ID || 'G-Y0D3NB91P7',
+  apiKey:env.VITE_FIREBASE_API_KEY || 'AIzaSyARwmrKHZb05rTOKAF3J7LLfiOSZuxwXOM',
+  authDomain:env.VITE_FIREBASE_AUTH_DOMAIN || 'snounu-a1440.firebaseapp.com',
+  projectId:env.VITE_FIREBASE_PROJECT_ID || 'snounu-a1440',
+  storageBucket:env.VITE_FIREBASE_STORAGE_BUCKET || 'snounu-a1440.firebasestorage.app',
+  messagingSenderId:env.VITE_FIREBASE_MESSAGING_SENDER_ID || '446316089077',
+  appId:env.VITE_FIREBASE_APP_ID || '1:446316089077:web:f16cd850b0e2e272c3bfbc',
+  measurementId:env.VITE_FIREBASE_MEASUREMENT_ID || 'G-9HH8KTS7ZW',
 });
 export const auth=getAuth(app);
 export const db=getFirestore(app);
