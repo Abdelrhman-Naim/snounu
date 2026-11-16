@@ -14,7 +14,7 @@ import './banner-slider.css';
 type Tab = 'dashboard' | AdminResource | 'settings';
 type Draft = Record<string, unknown>;
 const tabs: [Tab,string,string][] = [['dashboard','نظرة عامة','◈'],['products','المنتجات','▦'],['categories','الأقسام','☷'],['ingredients','المكونات','✳'],['banners','البنرات','▣'],['reviews','التقييمات','☆'],['messages','الرسائل','✉'],['settings','الإعدادات','⚙']];
-const settingsLabels:Record<keyof Settings,string> = {name:'اسم المتجر',description:'وصف المتجر',phone:'رقم الهاتف',whatsapp:'رقم واتساب',address:'العنوان',hours:'أوقات العمل',makukUrl:'رابط مكوك',sonbolUrl:'رابط سنبل',mapsUrl:'رابط خرائط Google',latitude:'خط العرض',longitude:'خط الطول',instagram:'رابط إنستغرام',facebook:'رابط فيسبوك',logo:'شعار المتجر',welcomeImage:'صورة الترحيب',siteUrl:'رابط الموقع'};
+const settingsLabels:Record<Exclude<keyof Settings,'mapsUrl'|'latitude'|'longitude'>,string> = {name:'اسم المتجر',description:'وصف المتجر',phone:'رقم الهاتف',whatsapp:'رقم واتساب',address:'العنوان',hours:'أوقات العمل',makukUrl:'رابط مكوك',sonbolUrl:'رابط سنبل',instagram:'رابط إنستغرام',facebook:'رابط فيسبوك',logo:'شعار المتجر',welcomeImage:'صورة الترحيب',siteUrl:'رابط الموقع'};
 const statusLabels:Record<string,string>={pending:'بانتظار المراجعة',approved:'معتمد',rejected:'مرفوض',new:'جديدة',read:'مقروءة',resolved:'تمت المعالجة'};
 function errorMessage(error:unknown):string {
  const code=(error as {code?:string})?.code;

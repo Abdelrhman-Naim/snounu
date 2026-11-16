@@ -22,6 +22,9 @@ test('admin category and message selects preserve validation, disabling and call
  const status=page.getByRole('combobox',{name:'حالة رسالة اختبار الواجهة',exact:true});
  await status.click();await page.getByRole('option',{name:'مقروءة',exact:true}).click();
  await expect(status).toContainText('مقروءة');await expect(page.getByRole('status')).toContainText('تم تحديث الحالة');
+ await page.locator('aside nav button').filter({hasText:'الإعدادات'}).click();
+ await expect(page.getByLabel('العنوان',{exact:true})).toBeVisible();
+ for(const label of ['رابط خرائط Google','خط العرض','خط الطول'])await expect(page.getByLabel(label,{exact:true})).toHaveCount(0);
 });
 
 test('contact select is themed, keyboard accessible and resets its form value',async({page})=>{
