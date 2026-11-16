@@ -1,0 +1,12 @@
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
+.theme-toggle-labeled{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:auto;min-width:142px;height:44px;padding:10px 14px;border-radius:11px;font-size:12px;font-weight:700;background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.admin-shell button.theme-toggle-labeled,.admin-auth button.theme-toggle-labeled{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--text);background:var(--surface-2);border-color:var(--border)}
+.admin-header{gap:20px;flex-wrap:wrap}.admin-header-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+main.admin-auth{position:relative;padding-top:90px}.admin-auth-theme{position:absolute;top:22px;left:24px}
+:root[data-theme=light] .product-card,:root[data-theme=light] .admin-panel,:root[data-theme=light] .admin-row{box-shadow:var(--shadow)}
+:root[data-theme=dark] .admin-alert.success{background:#193025;color:#b7efd0;border-color:#386a4f}
+:root[data-theme=dark] .admin-alert.error{background:#382322;color:#ffd0c8;border-color:#784340}
+:root[data-theme=dark] .admin-state.published{background:#1b3527;color:#b2e6be}
+:root[data-theme=dark] .admin-shell .admin-danger{color:#ffb5ac}
+:root[data-theme=dark] .admin-editor-heading>span{color:#ffca45}
+@media(max-width:700px){.admin-header-actions{width:100%;justify-content:space-between;gap:10px}.admin-auth-theme{top:18px;left:18px}.theme-toggle-labeled{min-width:132px}}
